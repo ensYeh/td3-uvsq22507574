@@ -47,8 +47,60 @@ public class Dns {
         }
 
     }
-
     public List<DnsItem> getItems() {
         return items;
     }
+    public DnsItem getItem(AdresseIP ip) {
+        for (DnsItem item : items) {
+            if (item.getAdresseIP().toString().equals(ip.toString())) {
+                return item;
+            }
+        }
+        return null; // ou tu peux lever une exception si IP non trouvée
+    }
+
+    public DnsItem getItem(String nomMachineComplet) {
+        for (DnsItem item : items) {
+            String fullName = item.getNomMachine().getNommachine() + "." + item.getNomMachine().getNomdomaine();
+            if (fullName.equals(nomMachineComplet)) {
+                return item;
+            }
+        }
+        return null; // ou lever une exception
+    }
+
+    public List<DnsItem> getItems(String nomDomaine) {
+        List<DnsItem> result = new ArrayList<>();
+        for (DnsItem item : items) {
+            if (item.getNomMachine().getNomdomaine().equals(nomDomaine)) {
+                result.add(item);
+            }
+        }
+        return result;
+    }
+
+    public void addItem(AdresseIP ip, NomMachine nomMachine) throws Exception {
+        // Vérifier doublons
+        for (DnsItem item : items) {
+            if (item.getAdresseIP().toString().equals(ip.toString())) {
+                throw new Exception("ERREUR : L'adresse IP existe déjà !");
+            }
+            String fullName = item.getNomMachine().getNommachine() + "." + item.getNomMachine().getNomdomaine();
+            String newFullName = nomMachine.getNommachine() + "." + nomMachine.getNomdomaine();
+            if (fullName.equals(newFullName)) {
+                throw new Exception("ERREUR : Le nom de machine existe déjà !");
+            }
+        }
+
+        // Ajouter à la liste
+        items.add(new DnsItem(ip, nomMachine));
+
+        // Mettre à jour le fichier
+        List<String> lignes = new ArrayList<>();
+        for (DnsItem item : items) {
+            lignes.add(item.getNomMachine().getNommachine() + "." + item.getNomMachine().getNomdomaine() + "\t" + item.getAdresseIP());
+        }
+        Files.write(Path.of(fichierMachines), lignes);
+    }
+
 }

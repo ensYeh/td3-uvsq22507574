@@ -8,17 +8,26 @@ public class NomMachine {
         this.nommachine = nommachine;
         this.nomdomaine = nomdomaine;
     }
+
+    public static NomMachine NomMachine (String nomComplet){
+        int index = nomComplet.indexOf(".");
+        String nommachine = nomComplet.substring(0, index);
+        String nomdomaine = nomComplet.substring(index+1);
+        return new NomMachine(nommachine, nomdomaine);
+    }
     public String getNommachine() {
         return nommachine;
     }
-    public void setNommachine(String nommachine) {
-        this.nommachine = nommachine;
-    }
+
     public String getNomdomaine() {
         return nomdomaine;
     }
-    public void setNomdomaine(String nomdomaine) {
-        this.nomdomaine = nomdomaine;
+    public String getNomcomplet() {
+        return nommachine + "." + nomdomaine;
+    }
+
+    public String toString(){
+        return getNomcomplet();
     }
 
 

@@ -11,14 +11,13 @@ public class DnsItem {
    public AdresseIP getAdresseIP() {
         return adresseIP;
    }
-   public void setAdresseIP(AdresseIP adresseIP) {
-       this.adresseIP = adresseIP;
-   }
+
    public NomMachine getNomMachine() {
        return nomMachine;
    }
-   public void setNomMachine(NomMachine nomMachine) {
-       this.nomMachine = nomMachine;
+
+   public String toString(){
+       return adresseIP.toString()+" "+nomMachine.toString();
    }
 
 }

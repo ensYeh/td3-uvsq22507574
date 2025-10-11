@@ -56,4 +56,58 @@ public class Dns {
     public List<DnsItem> getItems() {
         return items;
     }
+    // Récupère un item par adresse IP
+    public DnsItem getItem(AdresseIP ip) {
+        for (DnsItem item : items) {
+            if (item.getAdresseIP().toString().equals(ip.toString())) {
+                return item;
+            }
+        }
+        return null; // non trouvé
+    }
+
+    // Récupère un item par nom de machine
+    public DnsItem getItem(NomMachine nm) {
+        for (DnsItem item : items) {
+            if (item.getNomMachine().toString().equals(nm.toString())) {
+                return item;
+            }
+        }
+        return null; // non trouvé
+    }
+
+    // Récupère tous les items d’un domaine donné
+    public List<DnsItem> getItems(String domaine) {
+        List<DnsItem> resultat = new ArrayList<>();
+        for (DnsItem item : items) {
+            if (item.getNomMachine().getNomdomaine().equals(domaine)) {
+                resultat.add(item);
+            }
+        }
+        return resultat;
+    }
+
+    // Ajoute un item dans la base
+    public void addItem(AdresseIP ip, NomMachine nm) throws IOException {
+        // Vérifie si l’adresse ou le nom existe déjà
+        for (DnsItem item : items) {
+            if (item.getAdresseIP().toString().equals(ip.toString())) {
+                throw new IllegalArgumentException("ERREUR : L’adresse IP existe déjà !");
+            }
+            if (item.getNomMachine().toString().equals(nm.toString())) {
+                throw new IllegalArgumentException("ERREUR : Le nom de machine existe déjà !");
+            }
+        }
+
+        // Ajout dans la liste
+        items.add(new DnsItem(ip, nm));
+
+        // Mise à jour du fichier
+        List<String> lignes = new ArrayList<>();
+        for (DnsItem item : items) {
+            lignes.add(item.getNomMachine().toString() + "\t" + item.getAdresseIP().toString());
+        }
+        Files.write(Path.of(fichierMachines), lignes);
+    }
+
 }

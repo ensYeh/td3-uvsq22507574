@@ -34,19 +34,11 @@ public class Dns {
                 String nomMachineComplet = parts[0];
                 String adresseIPStr = parts[1];
 
-                // Découper l’adresse IP
-                String[] ipParts = adresseIPStr.split("\\.");
-                int o1 = Integer.parseInt(ipParts[0]);
-                int o2 = Integer.parseInt(ipParts[1]);
-                int o3 = Integer.parseInt(ipParts[2]);
-                int o4 = Integer.parseInt(ipParts[3]);
-                AdresseIP ip = new AdresseIP(o1, o2, o3, o4);
+                // ✅ Utilise la méthode fromString() de AdresseIP
+                AdresseIP ip = AdresseIP.fromString(adresseIPStr);
 
-                // Séparer nom et domaine
-                String[] machineParts = nomMachineComplet.split("\\.", 2);
-                String nomMachine = machineParts[0];
-                String nomDomaine = machineParts.length > 1 ? machineParts[1] : "";
-                NomMachine nm = new NomMachine(nomMachine, nomDomaine);
+                // ✅ Utilise la méthode fromString() de NomMachine
+                NomMachine nm = NomMachine.fromString(nomMachineComplet);
 
                 items.add(new DnsItem(ip, nm));
             }
@@ -56,6 +48,7 @@ public class Dns {
     public List<DnsItem> getItems() {
         return items;
     }
+
     // Récupère un item par adresse IP
     public DnsItem getItem(AdresseIP ip) {
         for (DnsItem item : items) {
@@ -63,7 +56,7 @@ public class Dns {
                 return item;
             }
         }
-        return null; // non trouvé
+        return null;
     }
 
     // Récupère un item par nom de machine
@@ -73,7 +66,7 @@ public class Dns {
                 return item;
             }
         }
-        return null; // non trouvé
+        return null;
     }
 
     // Récupère tous les items d’un domaine donné
@@ -109,5 +102,4 @@ public class Dns {
         }
         Files.write(Path.of(fichierMachines), lignes);
     }
-
 }

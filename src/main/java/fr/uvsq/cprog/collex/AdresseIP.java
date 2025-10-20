@@ -6,8 +6,8 @@ public class AdresseIP {
     private final int octet3;
     private final int octet4;
 
-    // 🔒 Constructeur privé (interne seulement)
-    private AdresseIP(int o1, int o2, int o3, int o4) {
+    // ✅ Constructeur public (peut être appelé depuis d’autres classes)
+    public AdresseIP(int o1, int o2, int o3, int o4) {
         if (!isOctetValide(o1) || !isOctetValide(o2) || !isOctetValide(o3) || !isOctetValide(o4)) {
             throw new IllegalArgumentException("Adresse IP non valide.");
         }
@@ -29,7 +29,6 @@ public class AdresseIP {
             int o2 = Integer.parseInt(parts[1]);
             int o3 = Integer.parseInt(parts[2]);
             int o4 = Integer.parseInt(parts[3]);
-
             return new AdresseIP(o1, o2, o3, o4);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Adresse IP invalide : " + ipStr);

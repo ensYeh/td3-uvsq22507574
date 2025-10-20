@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 // ... imports inchangés
 public class Dns {
@@ -85,6 +86,30 @@ public class Dns {
         }
         Files.write(fichierMachinesPath, lignes);
     }
+    public DnsItem getItem(AdresseIP ip) {
+        for (DnsItem item : items) {
+            if (item.getAdresseIP().equals(ip)) {
+                return item;
+            }
+        }
+        throw new IllegalArgumentException("Aucune machine trouvée pour l'adresse IP : " + ip);
+    }
+
+    // Récupérer un DnsItem à partir d'un NomMachine
+    public DnsItem getItem(NomMachine nm) {
+        for (DnsItem item : items) {
+            if (item.getNomMachine().equals(nm)) {
+                return item;
+            }
+        }
+        throw new IllegalArgumentException("Aucune machine trouvée pour le nom : " + nm);
+    }
+    public List<DnsItem> getItems(String domaine) {
+        return items.stream()
+                .filter(item -> item.getNomMachine().getNomdomaine().equals(domaine))
+                .collect(Collectors.toList());
+    }
+
 
 }
 // ... méthodes getItem, getItems, addItem (voir ci-dessous)

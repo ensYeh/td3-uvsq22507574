@@ -36,4 +36,8 @@ public class NomMachine {
     public String toString() {
         return getNomcomplet();
     }
+
+
+
+
 }

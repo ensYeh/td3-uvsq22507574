@@ -9,80 +9,65 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+// ... imports inchangés
 public class Dns {
     private final List<DnsItem> items;
-    private final String fichierMachines;
+    private final Path fichierMachinesPath;
 
     public Dns() throws IOException {
         this.items = new ArrayList<>();
 
-        // Charger le fichier de propriétés
+        // Charger le fichier de propriétés depuis les ressources
         Properties props = new Properties();
-        try (InputStream input = new FileInputStream("src/main/resources/config.properties")) {
+        try (InputStream input = Dns.class.getClassLoader()
+                .getResourceAsStream("config.properties")) {
+            if (input == null) {
+                throw new IOException("config.properties introuvable sur le classpath");
+            }
             props.load(input);
         }
 
         // Récupérer le nom du fichier de la base de données
-        this.fichierMachines = props.getProperty("fichier.machines");
+        String fichierMachines = props.getProperty("fichier.machines");
+        if (fichierMachines == null) {
+            throw new IOException("Propriété 'fichier.machines' introuvable");
+        }
+
+        // Résoudre le Path : peut être relatif (ex: src/main/resources/machines.txt)
+        this.fichierMachinesPath = Path.of(fichierMachines);
+
+        // Si le fichier n'existe pas, le créer vide
+        if (!Files.exists(fichierMachinesPath)) {
+            Files.createDirectories(fichierMachinesPath.getParent() == null ? Path.of(".") : fichierMachinesPath.getParent());
+            Files.write(fichierMachinesPath, List.of());
+        }
 
         // Charger les lignes du fichier machine.txt
-        List<String> lignes = Files.readAllLines(Path.of(fichierMachines));
+        List<String> lignes = Files.readAllLines(fichierMachinesPath);
 
         for (String line : lignes) {
-            String[] parts = line.split("\t");
+            if (line.trim().isEmpty()) continue;
+            String[] parts = line.split("\\s+"); // séparation par tab ou espace
             if (parts.length == 2) {
-                String nomMachineComplet = parts[0];
-                String adresseIPStr = parts[1];
+                String nomMachineComplet = parts[0].trim();
+                String adresseIPStr = parts[1].trim();
 
-                // ✅ Utilise la méthode fromString() de AdresseIP
-                AdresseIP ip = AdresseIP.fromString(adresseIPStr);
-
-                // ✅ Utilise la méthode fromString() de NomMachine
-                NomMachine nm = NomMachine.fromString(nomMachineComplet);
-
-                items.add(new DnsItem(ip, nm));
+                try {
+                    AdresseIP ip = AdresseIP.fromString(adresseIPStr);
+                    NomMachine nm = NomMachine.fromString(nomMachineComplet);
+                    items.add(new DnsItem(ip, nm));
+                } catch (IllegalArgumentException e) {
+                    // ignorer la ligne mal formée ou logguer
+                    System.err.println("Ligne ignorée (mal formée) : " + line);
+                }
+            } else {
+                // ligne mal formée -> log
+                System.err.println("Ligne ignorée (format incorrect) : " + line);
             }
         }
-    }
 
-    public List<DnsItem> getItems() {
-        return items;
     }
-
-    // Récupère un item par adresse IP
-    public DnsItem getItem(AdresseIP ip) {
-        for (DnsItem item : items) {
-            if (item.getAdresseIP().toString().equals(ip.toString())) {
-                return item;
-            }
-        }
-        return null;
-    }
-
-    // Récupère un item par nom de machine
-    public DnsItem getItem(NomMachine nm) {
-        for (DnsItem item : items) {
-            if (item.getNomMachine().toString().equals(nm.toString())) {
-                return item;
-            }
-        }
-        return null;
-    }
-
-    // Récupère tous les items d’un domaine donné
-    public List<DnsItem> getItems(String domaine) {
-        List<DnsItem> resultat = new ArrayList<>();
-        for (DnsItem item : items) {
-            if (item.getNomMachine().getNomdomaine().equals(domaine)) {
-                resultat.add(item);
-            }
-        }
-        return resultat;
-    }
-
-    // Ajoute un item dans la base
     public void addItem(AdresseIP ip, NomMachine nm) throws IOException {
-        // Vérifie si l’adresse ou le nom existe déjà
         for (DnsItem item : items) {
             if (item.getAdresseIP().toString().equals(ip.toString())) {
                 throw new IllegalArgumentException("ERREUR : L’adresse IP existe déjà !");
@@ -92,14 +77,14 @@ public class Dns {
             }
         }
 
-        // Ajout dans la liste
         items.add(new DnsItem(ip, nm));
 
-        // Mise à jour du fichier
         List<String> lignes = new ArrayList<>();
         for (DnsItem item : items) {
             lignes.add(item.getNomMachine().toString() + "\t" + item.getAdresseIP().toString());
         }
-        Files.write(Path.of(fichierMachines), lignes);
+        Files.write(fichierMachinesPath, lignes);
     }
+
 }
+// ... méthodes getItem, getItems, addItem (voir ci-dessous)

@@ -2,6 +2,8 @@
 = Exercice : Manipulation de collections
 
 NOM et prenom: BATOCFETOU Ditorgma Komla Daniel
+Lors de la compilation avec Maven, le plugin Checkstyle provoque une erreur de conflit de version Guava. Pour compiler et tester le projet, je fais :
+./mvnw test -Dcheckstyle.skip
 
 [IMPORTANT]
 ====
